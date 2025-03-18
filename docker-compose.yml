@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # MySQL container
+  postgres:
+    image: postgis/postgis # Sử dụng phiên bản PostgreSQL 15
+    environment:
+      POSTGRES_DB: store
+      POSTGRES_USER: lulu
+      POSTGRES_PASSWORD: 14796
+    volumes:
+      - postgres-data:/var/lib/postgresql/data  # Lưu trữ dữ liệu khi khởi động lại container
+    ports:
+      - "5432:5432"  # Exposing PostgreSQL port
+    networks:
+      - app-network
+
+
+  redis:
+    image: redis:7.2-alpine  # Lightweight Linux-based Redis image
+    command: ["redis-server", "--requirepass", "14796"]  # Set Redis password
+    environment:
+      REDIS_PASSWORD: 14796  # Optional for consistency
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  java-app:
+    build:
+      context: .
+      dockerfile: Dockerfile-java  # This is your Dockerfile for the Java app
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/store
+      - SPRING_DATASOURCE_USERNAME=lulu
+      - SPRING_DATASOURCE_PASSWORD=14796
+      - gateway.url=http://host.docker.internal:5000
+      - redis.host=redis
+      - redis.port=6379
+      - redis.password=14796
+    ports:
+      - "8080:8080"  # Exposing port 8080 to the host machine
+      - "8081:8081"  # Exposing port 8081 to the host machine
+    volumes:
+      - shared-volume:/app/angular/public
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+
+  # NGINX container
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx  # This is the Dockerfile for NGINX
+    volumes:
+      - shared-volume:/app/angular/public
+  #  volumes:
+ #     - ./gzip.conf:/etc/nginx/conf.d/gzip.conf
+ #     - ./html:/usr/share/nginx/html:ro
+    ports:
+      - "81:80"  # NGINX will also listen on port 5888 on the host machine
+    depends_on:
+      - java-app  # Make sure the Java app is started before NGINX
+    networks:
+      - app-network
+
+
+volumes:
+  postgres-data:  # Volume for MySQL persistence
+  shared-volume:  # Declare the shared volume
+    driver: local
+  
+networks:
+  app-network:
+    driver: bridge

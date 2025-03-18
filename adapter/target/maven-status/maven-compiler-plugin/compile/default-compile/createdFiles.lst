@@ -1,0 +1,5 @@
+com\akila\adapter\persistence\admin\TransactionAdapter.class
+com\akila\adapter\persistence\restService\GoogleCaptchaClientService.class
+com\akila\adapter\persistence\restService\EmailService.class
+com\akila\adapter\persistence\restService\GoogleCaptchaClientService$ReCaptchaVerifyResponse.class
+com\akila\adapter\persistence\admin\CustomerAdapter.class

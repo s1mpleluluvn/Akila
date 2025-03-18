@@ -1,0 +1,27 @@
+<config
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.ehcache.org/v3'
+    xsi:schemaLocation="
+            http://www.ehcache.org/v3
+            http://www.ehcache.org/schema/ehcache-core-3.7.xsd">
+<!--minhtrinh_monex tạo path khác với emb-->
+    <persistence directory="spring-boot-ehcache-mobile/cache" />
+
+    <cache-template name="default">
+        <expiry>
+            <ttl unit="seconds">30</ttl>
+        </expiry>
+
+        <resources>
+            <heap>1000</heap>
+            <offheap unit="MB">10</offheap>
+            <disk persistent="true" unit="MB">20</disk>
+        </resources>
+    </cache-template>
+
+    <cache alias="gameConfig" uses-template="default">
+        <key-type>com.vietlott.entity.game.GameType</key-type>
+        <value-type>com.vietlott.entity.game.GameConfig</value-type>
+    </cache>
+
+</config>

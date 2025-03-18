@@ -1,0 +1,11 @@
+com\akila\redis\AuthenticationSession$AuthenticationSessionBuilder.class
+com\akila\redis\RedisAuthSessionStorageService.class
+com\akila\redis\lock\LockKey.class
+com\akila\redis\AuthenticationSession.class
+com\akila\redis\lock\RedissonPoolImpl.class
+com\akila\redis\lock\RedissonPool.class
+com\akila\redis\RedisQueueService.class
+com\akila\redis\AuthService.class
+com\akila\redis\RedisPoolImpl.class
+com\akila\redis\lock\DistributeLockServices.class
+com\akila\redis\RedisPool.class

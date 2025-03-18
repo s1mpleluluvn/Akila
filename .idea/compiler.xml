@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="akila-adapter" />
+        <module name="ext-redis" />
+        <module name="akila.mysqlEntity" />
+        <module name="akila.entity" />
+        <module name="core-admin" />
+        <module name="akila-domain" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="akila-adapter" options="-parameters" />
+      <module name="akila-domain" options="-parameters" />
+      <module name="akila.entity" options="-parameters" />
+      <module name="akila.mysqlEntity" options="-parameters" />
+      <module name="core-admin" options="-parameters" />
+      <module name="ext-redis" options="-parameters" />
+    </option>
+  </component>
+</project>
