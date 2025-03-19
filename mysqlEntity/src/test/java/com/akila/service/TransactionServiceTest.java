@@ -5,6 +5,7 @@
 package com.akila.service;
 
 import com.akila.entity.AccountEntity;
+import com.akila.entity.CustomerEntity;
 import com.akila.entity.TransactionEntity;
 import com.akila.entity.data.Transaction;
 import com.akila.repository.AccountRepository;
@@ -69,19 +70,25 @@ public class TransactionServiceTest {
     private AccountEntity fromAccount;
     private AccountEntity toAccount;
 
+    private CustomerEntity customer;
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         transactionService = new TransactionService(customerRepository, accountRepository, transactionRepository, entityManager);
+        customer = new CustomerEntity();
+        customer.setUserName("user1");
+        
         fromAccount = new AccountEntity();
         fromAccount.setAccountNumber("ACC001");
         fromAccount.setBalance(new BigDecimal("1000.00"));
         fromAccount.setCurrency(CurrencyType.USD);
+        fromAccount.setCustomer(customer);
 
         toAccount = new AccountEntity();
         toAccount.setAccountNumber("ACC002");
         toAccount.setBalance(new BigDecimal("500.00"));
         toAccount.setCurrency(CurrencyType.USD);
+        toAccount.setCustomer(customer);
     }
 
     // Tests for transferMoney
@@ -101,7 +108,7 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(TransactionEntity.class))).thenReturn(transactionEntity);
 
         // Act
-        Transaction result = transactionService.transferMoney("ACC001", "ACC002", new BigDecimal("200.00"), "Test transfer");
+        Transaction result = transactionService.transferMoney("user1","ACC001", "ACC002", new BigDecimal("200.00"), "Test transfer");
 
         // Assert
         assertNotNull(result);
@@ -118,7 +125,7 @@ public class TransactionServiceTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                transactionService.transferMoney("ACC001", "ACC002", new BigDecimal("200.00"), "Test transfer"));
+                transactionService.transferMoney("user1","ACC001", "ACC002", new BigDecimal("200.00"), "Test transfer"));
         assertEquals("Source account not found", exception.getMessage());
     }
 
@@ -130,7 +137,7 @@ public class TransactionServiceTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                transactionService.transferMoney("ACC001", "ACC002", new BigDecimal("200.00"), "Test transfer"));
+                transactionService.transferMoney("user1","ACC001", "ACC002", new BigDecimal("200.00"), "Test transfer"));
         assertEquals("Destination account not found", exception.getMessage());
     }
 
@@ -143,7 +150,7 @@ public class TransactionServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transferMoney("ACC001", "ACC002", new BigDecimal("200.00"), "Test transfer"));
+                transactionService.transferMoney("user1","ACC001", "ACC002", new BigDecimal("200.00"), "Test transfer"));
         assertEquals("Accounts must use the same currency", exception.getMessage());
     }
 
@@ -155,7 +162,7 @@ public class TransactionServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transferMoney("ACC001", "ACC002", new BigDecimal("2000.00"), "Test transfer"));
+                transactionService.transferMoney("user1","ACC001", "ACC002", new BigDecimal("2000.00"), "Test transfer"));
         assertEquals("Insufficient funds", exception.getMessage());
     }
 

@@ -49,26 +49,24 @@ services:
     networks:
       - app-network
 
-  # NGINX container
-  nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile-nginx  # This is the Dockerfile for NGINX
-    volumes:
-      - shared-volume:/app/angular/public
-  #  volumes:
- #     - ./gzip.conf:/etc/nginx/conf.d/gzip.conf
- #     - ./html:/usr/share/nginx/html:ro
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: akila@gmail.com  # Email mặc định để đăng nhập
+      PGADMIN_DEFAULT_PASSWORD: akila@123456       # Mật khẩu mặc định để đăng nhập
+      PGADMIN_LISTEN_PORT: 80                 # Port mà pgAdmin chạy bên trong container
     ports:
-      - "81:80"  # NGINX will also listen on port 5888 on the host machine
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
     depends_on:
-      - java-app  # Make sure the Java app is started before NGINX
+      - postgres
     networks:
       - app-network
 
-
 volumes:
   postgres-data:  # Volume for MySQL persistence
+  pgadmin-data:  # Volume for pgAdmin persistence
   shared-volume:  # Declare the shared volume
     driver: local
   

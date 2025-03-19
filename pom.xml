@@ -23,7 +23,8 @@
     </modules>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
-        <maven.test.skip>true</maven.test.skip>
+        <!-- enable test -->
+        <maven.test.skip>false</maven.test.skip>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
     <build>
