@@ -1,3 +1,4 @@
+com\akila\rest\account\FindRequest.class
 com\akila\rest\ErrorHandlingControllerAdvice$BadInputApiResponse.class
 com\akila\rest\ErrorHandlingControllerAdvice$MaxUploadSizeExceededResponse.class
 com\akila\rest\ApiCode.class

@@ -32,7 +32,12 @@ public class TransactionDomainService implements TransactionUsecase {
     }
 
     @Override
-    public List<Transaction> getTransactionsByAccountNumber(String accountNumber, Pageable pageable) {
-        return transactionPort.getTransactionsByAccountNumber(accountNumber, pageable);
+    public List<Transaction> getTransactionsByAccountNumber(String userName,String accountNumber, Pageable pageable) {
+        return transactionPort.getTransactionsByAccountNumber(userName, accountNumber, pageable);
+    }
+
+    @Override
+    public Long countTransactionsByAccountNumber(String userName, String accountNumber) {
+        return transactionPort.countTransactionsByAccountNumber(userName, accountNumber);
     }
 }

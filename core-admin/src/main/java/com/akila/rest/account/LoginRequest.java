@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
 
-    @Schema(description = "Tên đăng nhập", example = "akilaadmin1", required = true)
+    @Schema(description = "Tên đăng nhập", example = "akilaadmin", required = true)
     @NotBlank
     private String userName;
 

@@ -171,7 +171,7 @@ public class TransactionServiceTest {
     void getTransactionsByAccountNumber_returnsTransactions() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10);
-
+        when(accountRepository.findByAccountNumber("ACC001")).thenReturn(Optional.of(fromAccount));
         // Mock CriteriaBuilder and CriteriaQuery
         when(entityManager.getCriteriaBuilder()).thenReturn(criteriaBuilder);
         when(criteriaBuilder.createQuery(TransactionEntity.class)).thenReturn(criteriaQuery);
@@ -184,6 +184,7 @@ public class TransactionServiceTest {
         when(root.get("toAccount")).thenReturn(toAccountPath);
         when(fromAccountPath.get("accountNumber")).thenReturn(mock(Path.class));
         when(toAccountPath.get("accountNumber")).thenReturn(mock(Path.class));
+
 
         // Mock predicates and fluent API chain
         Predicate predicate = mock(Predicate.class);
@@ -212,7 +213,7 @@ public class TransactionServiceTest {
 
 
         // Act
-        List<Transaction> result = transactionService.getTransactionsByAccountNumber("ACC001", pageable);
+        List<Transaction> result = transactionService.getTransactionsByAccountNumber("user1","ACC001", pageable);
 
         // Assert
         assertNotNull(result);

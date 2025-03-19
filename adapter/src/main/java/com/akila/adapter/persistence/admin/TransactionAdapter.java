@@ -22,7 +22,12 @@ public class TransactionAdapter implements TransactionPort {
     }
 
     @Override
-    public List<Transaction> getTransactionsByAccountNumber(String accountNumber, Pageable pageable) {
-        return transactionService.getTransactionsByAccountNumber(accountNumber, pageable);
+    public List<Transaction> getTransactionsByAccountNumber(String userName, String accountNumber, Pageable pageable) {
+        return transactionService.getTransactionsByAccountNumber(userName,accountNumber, pageable);
+    }
+
+    @Override
+    public Long countTransactionsByAccountNumber(String userName, String accountNumber) {
+        return transactionService.countTransactionsByAccountNumber(userName, accountNumber);
     }
 }

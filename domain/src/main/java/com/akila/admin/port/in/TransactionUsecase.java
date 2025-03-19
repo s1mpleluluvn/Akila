@@ -11,5 +11,7 @@ public interface TransactionUsecase {
     //transfer money
     Transaction transferMoney(String userName, String fromAccount, String toAccount, BigDecimal amount, String description);
 
-    List<Transaction> getTransactionsByAccountNumber(String accountNumber, Pageable pageable);
+    List<Transaction> getTransactionsByAccountNumber(String userName, String accountNumber, Pageable pageable);
+
+    Long countTransactionsByAccountNumber(String userName, String accountNumber);
 }

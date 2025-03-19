@@ -87,36 +87,40 @@ public class LoginController {
     @Operation(description = "Sign on")
     @PostMapping("signOn")
     public LoginResponse signOn(@Valid @RequestBody LoginRequest request) throws Exception {
-        if (this.captchaVerificationRequired) {
-            if (request.getDevice() != null && request.getDevice().startsWith("Avalonia")) {
-                var captcha = request.getCaptchaToken();
-                request.setCaptchaToken(null);
-                String jsonCheckSum = JsonUtil.getGson().toJson(request);
-                var dataEncrypt = CryptoUtil.deEncryptCustomize(captcha, request.getDevice());
-                if (!jsonCheckSum.equals(dataEncrypt)) {
-                    return new LoginResponse("INVALID_CAPTCHA");
+        try {
+            if (this.captchaVerificationRequired) {
+                if (request.getDevice() != null && request.getDevice().startsWith("Avalonia")) {
+                    var captcha = request.getCaptchaToken();
+                    request.setCaptchaToken(null);
+                    String jsonCheckSum = JsonUtil.getGson().toJson(request);
+                    var dataEncrypt = CryptoUtil.deEncryptCustomize(captcha, request.getDevice());
+                    if (!jsonCheckSum.equals(dataEncrypt)) {
+                        return new LoginResponse("INVALID_CAPTCHA");
+                    }
+                } else {
+                    if (!googleCaptchaClientService.verifyCaptcha(request.getCaptchaToken())) {
+                        return new LoginResponse("INVALID_CAPTCHA");
+                    }
                 }
+            }
+            var result = userService.findByUserName(request.getUserName());
+            if (result != null) {
+                if (!this.passwordEncoder.matches(request.getPassword(), result.getPasswordHash())) {
+                    return new LoginResponse("LOGIN_ERROR");
+                }
+                if (result.getStatus() != AccountStatus.ACTIVE) {
+                    return new LoginResponse("LOGIN_ERROR");
+                }
+                LocalDateTime timeout = request.isRememberMe() ? LocalDateTime.now().plusDays(30) : LocalDateTime.now().plusMinutes(30);
+                var token = authService.addAuthenticationSession(AuthenticationSession.builder().device(request.getDevice())
+                        .userName(request.getUserName())
+                        .email(result.getEmail()).name(result.getUserName())
+                        .signOnAt(LocalDateTime.now()).timeout(timeout).build(), request.isRememberMe());
+                return new LoginResponse(request.getUserName(), token, timeout, result.getEmail());
             } else {
-                if (!googleCaptchaClientService.verifyCaptcha(request.getCaptchaToken())) {
-                    return new LoginResponse("INVALID_CAPTCHA");
-                }
-            }
-        }
-        var result = userService.findByUserName(request.getUserName());
-        if (result != null) {
-            if (!this.passwordEncoder.matches(request.getPassword(), result.getPasswordHash())) {
                 return new LoginResponse("LOGIN_ERROR");
             }
-            if (result.getStatus() != AccountStatus.ACTIVE) {
-                return new LoginResponse("LOGIN_ERROR");
-            }
-            LocalDateTime timeout = request.isRememberMe() ? LocalDateTime.now().plusDays(30) : LocalDateTime.now().plusMinutes(30);
-            var token = authService.addAuthenticationSession(AuthenticationSession.builder().device(request.getDevice())
-                    .userName(request.getUserName())
-                    .email(result.getEmail()).name(result.getUserName())
-                    .signOnAt(LocalDateTime.now()).timeout(timeout).build(), request.isRememberMe());
-            return new LoginResponse(request.getUserName(), token, timeout,result.getEmail());
-        } else {
+        } catch (Exception ex) {
             return new LoginResponse("LOGIN_ERROR");
         }
     }
@@ -146,7 +150,7 @@ public class LoginController {
     @Operation(description = "Sign out")
     @PostMapping("signOutSession")
     public DefaultResponse signOutSession(@Parameter(hidden = true)
-                                          @RequestHeader(value = HttpHeaders.AUTHORIZATION) String token) {
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION) String token) {
         this.authService.signOutSession(TokenUtil.getTokenFromAuthorization(token));
         return new DefaultResponse();
     }
@@ -154,7 +158,7 @@ public class LoginController {
     @Operation(description = "Sign out by key")
     @PostMapping("signOutSessionByKey")
     public DefaultResponse signOutSessionByKey(@Valid
-                                               @RequestBody SignOutSessionByKeyRequest request) {
+            @RequestBody SignOutSessionByKeyRequest request) {
         this.authService.signOutSession(request.getKey());
         return new DefaultResponse();
     }

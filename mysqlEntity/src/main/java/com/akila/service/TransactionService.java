@@ -41,7 +41,6 @@ public class TransactionService {
         this.entityManager = entityManager;
     }
 
-
     @Transactional
     public Transaction transferMoney(String userName, String fromAccount, String toAccount, BigDecimal amount, String description) {
         // Fetch accounts
@@ -85,7 +84,20 @@ public class TransactionService {
         return transactionRepository.save(transaction).toData();
     }
 
-    public List<Transaction> getTransactionsByAccountNumber(String accountNumber, Pageable pageable) {
+    @Transactional
+    public List<Transaction> getTransactionsByAccountNumber(String userName, String accountNumber, Pageable pageable) {
+        if (StringUtils.isBlank(accountNumber)) {
+            return new ArrayList<>();
+        }
+
+        var checkedAccount = accountRepository.findByAccountNumber(accountNumber);
+        if (checkedAccount.isEmpty()) {
+            return new ArrayList<>();
+        }
+        if (!StringUtils.equals(checkedAccount.get().getCustomer().getUserName(), userName)) {
+            return new ArrayList<>();
+        }
+
         var cb = this.entityManager.getCriteriaBuilder();
         var query = cb.createQuery(TransactionEntity.class);
         var root = query.from(TransactionEntity.class);
@@ -94,7 +106,6 @@ public class TransactionService {
         predicates.add(cb.or(
                 cb.equal(root.get("fromAccount").get("accountNumber"), accountNumber),
                 cb.equal(root.get("toAccount").get("accountNumber"), accountNumber)));
-
 
         CriteriaQuery<TransactionEntity> select;
 
@@ -119,5 +130,42 @@ public class TransactionService {
         }
 
         return result.stream().map(TransactionEntity::toData).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Long countTransactionsByAccountNumber(String userName, String accountNumber) {
+        if (StringUtils.isBlank(accountNumber)) {
+            return 0L;
+        }
+
+        var checkedAccount = accountRepository.findByAccountNumber(accountNumber);
+        if (checkedAccount.isEmpty()) {
+            return 0L;
+        }
+        if (!StringUtils.equals(checkedAccount.get().getCustomer().getUserName(), userName)) {
+            return 0L;
+        }
+
+        var cb = this.entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(Long.class);
+        var root = query.from(TransactionEntity.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.or(
+                cb.equal(root.get("fromAccount").get("accountNumber"), accountNumber),
+                cb.equal(root.get("toAccount").get("accountNumber"), accountNumber)));
+
+        CriteriaQuery<Long> count;
+
+        if (CollectionUtils.isEmpty(predicates)) {
+            count = query
+                    .select(cb.count(root));
+        } else {
+            count = query
+                    .where(predicates.toArray(Predicate[]::new))
+                    .select(cb.count(root));
+        }
+
+        return this.entityManager.createQuery(count).getSingleResult();
     }
 }
