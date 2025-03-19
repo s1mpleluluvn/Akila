@@ -26,6 +26,7 @@ public class TransactionDomainService implements TransactionUsecase {
     @Override
     public Transaction transferMoney(String userName, String fromAccount, String toAccount, BigDecimal amount, String description) {
         var transaction = transactionPort.transferMoney(userName, fromAccount, toAccount, amount, description);
+        //this for sending email and notification but using async to not block the main thread (Executor taskExecutor())
         customerPort.sendEmailAndNotification(transaction.getFromAccount(), transaction.getToAccount(), amount, description);
         return transaction;
     }

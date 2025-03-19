@@ -17,11 +17,11 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
 
-    @Schema(description = "Tên đăng nhập", example = "admin", required = true)
+    @Schema(description = "Tên đăng nhập", example = "akilaadmin1", required = true)
     @NotBlank
     private String userName;
 
-    @Schema(description = "Mật khẩu đăng nhập", example = "password", required = true)
+    @Schema(description = "Mật khẩu đăng nhập", example = "akila@123456", required = true)
     @NotBlank
     private String password;
 
